@@ -38,8 +38,10 @@ void frame();
 void circle(GLfloat x, GLfloat y, GLfloat r, int s, int t, int u);
 void rotation(int i, GLfloat x, GLfloat y, GLfloat v, GLfloat r);
 void robot_head_body();
+void kicking_leg(GLfloat x, GLfloat y);
 void rebound_timer();
 void collisions_timer();
+void kickleg_timer();
 
 // view port size
 GLfloat width = 640.0;
@@ -51,7 +53,15 @@ int number = 1;
 // Playback speed magnification
 GLfloat rate = 0.25;
 
-// structure of ball
+// Distance between robot and ball. default 20
+GLfloat btw = 0.0;
+
+// axis of rotation of kicking leg and leg length
+GLfloat axis_x = -50;
+GLfloat axis_y = 170;
+GLfloat length = 170;
+
+// structure of balls
 typedef struct 
 {
     GLfloat x_cd;
@@ -65,11 +75,12 @@ typedef struct
 }
 ball_struct;
 
-ball_struct ball[NUMBER_BALL] = {{20, 20, 0, 0, 0, 20, 0, 0},
+ball_struct ball[NUMBER_BALL] = {{20, 20, 100, 100, 0, 20, 0, 0},
                                  {600, 300, -100, 0, 0, 10, 0, 0},
                                  {200, 400, 0, 0, 0, 25, 0, 0},
                                  {340, 60, -80, 100, 0, 60, 0, 0}};
 
+// structure of ball coordinates
 typedef struct
 {
     GLfloat x_r;
@@ -83,6 +94,31 @@ ball_rotate  rotate[NUMBER_BALL] = {{0.0, 0.0, 0.0},
                                     {0.0, 0.0, 0.0},
                                     {0.0, 0.0, 0.0}};
 
+// structure of robot leg
+typedef struct
+{
+    GLfloat lo_x;
+    GLfloat lo_y;
+    GLfloat time;
+    GLfloat omega;
+    GLfloat qut;
+}
+kick_leg;
+
+kick_leg leg = {0.0, 0.0, 0.0, 100.0, 0.0};
+
+// structure of leg coodinates
+typedef struct
+{
+    GLfloat x;
+    GLfloat y;
+}
+leg_coodinates;
+
+leg_coodinates leco[4] = {{-20, 0},
+                          {-20, 200},
+                          {-80, 200},
+                          {-80, 0}};
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -99,6 +135,7 @@ void mouse(int button, int state, int x, int y)
                 // write an event
                 glutTimerFunc(100, rebound_timer, 0);
                 glutTimerFunc(100, collisions_timer, 0);
+                glutTimerFunc(100, kickleg_timer, 0);
             break;
         case GLUT_RIGHT_BUTTON:
             if(state == GLUT_DOWN);
@@ -119,6 +156,7 @@ void display()
     {
         circle(ball[i].x_cd, ball[i].y_cd, ball[i].size, CYAN);
         rotation(i, ball[i].x_cd, ball[i].y_cd, ball[i].xy_sp, ball[i].size);
+        kicking_leg(leg.lo_x, leg.lo_y);
     }
     glPopMatrix();
     glutSwapBuffers();
@@ -128,11 +166,11 @@ void display()
 void reshape()
 {
     // specify the drawing area
-    glViewport(100, 0, width + 10, high + 30);
+    glViewport(0, 0, width + 200, high + 30);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     // 3D cahnge to 2D
-    glOrtho(-200, width + 160, -10, high + 120, -1.0, 1.0);
+    glOrtho(-300, width + 120, -10, high + 120, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -233,7 +271,61 @@ void rotation(int i, GLfloat x, GLfloat y, GLfloat v, GLfloat r)
 
 void robot_head_body()
 {
-    circle(-50, high-40, 40, YELLOW);
+    circle(-50 + btw, high-40, 40, YELLOW);
+
+    glBegin(GL_QUADS);
+    glColor3f(YELLOW);
+    glVertex2f(-90 + btw, 400);
+    glVertex2f(-10 + btw, 400);
+    glVertex2f(-10 + btw, 205);
+    glVertex2f(-90 + btw, 205);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3f(BLACK);
+    glVertex2f(-70 + btw, 390);
+    glVertex2f(-30 + btw, 390);
+    glVertex2f(-30 + btw, 220);
+    glVertex2f(-70 + btw, 220);
+    glEnd();
+    glBegin(GL_QUADS);
+    glColor3f(YELLOW);
+    glVertex2f(-80 + btw, 200);
+    glVertex2f(-20 + btw, 200);
+    glVertex2f(-20 + btw, 0);
+    glVertex2f(-80 + btw, 0);
+    glEnd();
+    glBegin(GL_LINE_LOOP);
+    glColor3f(BLACK);
+    glVertex2f(-80 + btw, 200);
+    glVertex2f(-20 + btw, 200);
+    glVertex2f(-20 + btw, 0);
+    glVertex2f(-80 + btw, 0);
+    glEnd();
+
+}
+
+void kicking_leg(GLfloat x, GLfloat y)
+{
+    GLfloat a, b;
+    a = atan(3/17);
+    b = atan(1);
+    leco[0].x = leco[0].x * cos(leg.qut + a) - leco[0].y * sin(leg.qut + a);
+    leco[0].y = leco[0].x * sin(leg.qut + a) + leco[0].y * cos(leg.qut + a);
+    leco[1].x = leco[1].x * cos(leg.qut - b) - leco[1].y * sin(leg.qut - b);
+    leco[1].y = leco[1].x * sin(leg.qut - b) + leco[1].y * cos(leg.qut - b);
+    leco[2].x = leco[2].x * cos(leg.qut + b) - leco[2].y * sin(leg.qut + b);
+    leco[2].y = leco[2].x * sin(leg.qut + b) + leco[2].y * cos(leg.qut + b);
+    leco[3].x = leco[3].x * cos(leg.qut - a) - leco[3].y * sin(leg.qut - a);
+    leco[3].y = leco[3].x * sin(leg.qut - a) + leco[3].y * cos(leg.qut - a);
+    glBegin(GL_QUADS);
+    glColor3f(MAGENTA);
+    glVertex2f(leco[2].x, leco[2].y);
+    glVertex2f(leco[1].x, leco[1].y);
+    glVertex2f(leco[0].x, leco[0].y);
+    glVertex2f(leco[3].x, leco[3].y);
+    glEnd();
+
+
 }
 
 void rebound_timer()
@@ -331,12 +423,22 @@ void collisions_timer()
     glutTimerFunc(25, collisions_timer, 0);
 }
 
+void kickleg_timer()
+{
+    leg.time += 0.0025 * rate;
+    leg.qut = (leg.omega * leg.time) - (0.5 * PI);
+    leg.lo_x = axis_x + btw + length * cos(leg.qut);
+    leg.lo_y = axis_y + length * sin(leg.qut);
+    glutPostRedisplay();
+    glutTimerFunc(25, kickleg_timer, 0);
+}
+
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB);
     // specify the window size
-    glutInitWindowSize(width + 100, high);
+    glutInitWindowSize(width + 200, high);
     // specify the screen display position
     glutInitWindowPosition(0, 0);
     glutCreateWindow(argv[0]);
@@ -351,4 +453,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
