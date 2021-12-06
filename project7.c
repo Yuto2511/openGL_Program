@@ -105,7 +105,7 @@ typedef struct
 }
 kick_leg;
 
-kick_leg leg = {0.0, 0.0, 0.0, 100.0, 0.0};
+kick_leg leg = {0.0, 0.0, 0.0, 5.0, 0.0};
 
 // structure of leg coodinates
 typedef struct
@@ -115,10 +115,10 @@ typedef struct
 }
 leg_coodinates;
 
-leg_coodinates leco[4] = {{-20, 0},
-                          {-20, 200},
-                          {-80, 200},
-                          {-80, 0}};
+leg_coodinates leco[4] = {{30, -170},
+                          {30, 30},
+                          {-30, 30},
+                          {-30, -170}};
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -306,23 +306,28 @@ void robot_head_body()
 
 void kicking_leg(GLfloat x, GLfloat y)
 {
-    GLfloat a, b;
-    a = atan(3/17);
-    b = atan(1);
-    leco[0].x = leco[0].x * cos(leg.qut + a) - leco[0].y * sin(leg.qut + a);
-    leco[0].y = leco[0].x * sin(leg.qut + a) + leco[0].y * cos(leg.qut + a);
-    leco[1].x = leco[1].x * cos(leg.qut - b) - leco[1].y * sin(leg.qut - b);
-    leco[1].y = leco[1].x * sin(leg.qut - b) + leco[1].y * cos(leg.qut - b);
-    leco[2].x = leco[2].x * cos(leg.qut + b) - leco[2].y * sin(leg.qut + b);
-    leco[2].y = leco[2].x * sin(leg.qut + b) + leco[2].y * cos(leg.qut + b);
-    leco[3].x = leco[3].x * cos(leg.qut - a) - leco[3].y * sin(leg.qut - a);
-    leco[3].y = leco[3].x * sin(leg.qut - a) + leco[3].y * cos(leg.qut - a);
+    GLfloat save;
+    save = leco[0].x * cos(leg.qut) - leco[0].y * sin(leg.qut);
+    leco[0].y = leco[0].x * sin(leg.qut) + leco[0].y * cos(leg.qut);
+    leco[0].x = save;
+
+    save = leco[1].x * cos(leg.qut) - leco[1].y * sin(leg.qut);
+    leco[1].y = leco[1].x * sin(leg.qut) + leco[1].y * cos(leg.qut);
+    leco[2].x = save;
+
+    save = leco[2].x * cos(leg.qut) - leco[2].y * sin(leg.qut);
+    leco[2].y = leco[2].x * sin(leg.qut) + leco[2].y * cos(leg.qut);
+    leco[2].x = save;
+
+    save = leco[3].x * cos(leg.qut) - leco[3].y * sin(leg.qut);
+    leco[3].y = leco[3].x * sin(leg.qut) + leco[3].y * cos(leg.qut);
+    leco[3].x = save;
     glBegin(GL_QUADS);
     glColor3f(MAGENTA);
-    glVertex2f(leco[2].x, leco[2].y);
-    glVertex2f(leco[1].x, leco[1].y);
-    glVertex2f(leco[0].x, leco[0].y);
-    glVertex2f(leco[3].x, leco[3].y);
+    glVertex2f(leco[2].x + btw - 50, leco[2].y + 170);
+    glVertex2f(leco[1].x + btw - 50, leco[1].y + 170);
+    glVertex2f(leco[0].x + btw - 50, leco[0].y + 170);
+    glVertex2f(leco[3].x + btw - 50, leco[3].y + 170);
     glEnd();
 
 
