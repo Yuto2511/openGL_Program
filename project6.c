@@ -45,7 +45,7 @@ GLfloat width = 640.0;
 GLfloat high = 480.0;
 
 // the number of balls to display
-int number = 2;
+int number = 1;
 
 // Playback speed magnification
 GLfloat rate = 0.25;
@@ -65,7 +65,7 @@ typedef struct
 ball_struct;
 
 ball_struct ball[NUMBER_BALL] = {{330, 400, 0, 0, 0, 30, 0, 0},
-                                 {320, 200,0, 0, 0, 30, 0, 0},
+                                 {320, 200, -100, 0, 0, 30, 0, 0},
                                  {200, 400, 0, 0, 0, 25, 0, 0},
                                  {340, 60, -80, 100, 0, 60, 0, 0}};
 

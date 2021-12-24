@@ -16,7 +16,7 @@ void circle(GLfloat x, GLfloat y, GLfloat r);
 void timer_1();
 void timer_2();
 
-GLfloat dis_x = 50, dis_y = 50;
+GLfloat dis_x = -50, dis_y = 170;
 
 typedef struct
 {
@@ -25,10 +25,10 @@ typedef struct
 }
 polygon_coodinate;
 
-polygon_coodinate poly[4] = {{100, -100},
-                                {100, 100},
-                                {-100, 100},
-                                {-100, -100}};
+polygon_coodinate poly[4] = {{30, -170},
+                                {30, 30},
+                                {-30, 30},
+                                {-30, -170}};
 
 polygon_coodinate elli = {200, 0};
 
@@ -142,6 +142,7 @@ void mouse(int button, int state, int x, int y)
         case GLUT_LEFT_BUTTON:
             if(state == GLUT_DOWN);
                 // write an event    
+                glutTimerFunc(100, timer_1, 0);
                 glutTimerFunc(100, timer_2, 0);
             break;
         case GLUT_RIGHT_BUTTON:
@@ -165,7 +166,7 @@ void display()
     glVertex2f(250, 0.0);
     glEnd();
     coodinate();
-    //polygon();
+    polygon();
     circle(elli.x, elli.y*0.8, 10);
     glPopMatrix();
     glutSwapBuffers();

@@ -301,11 +301,19 @@ void robot_head_body()
     glVertex2f(-20 + btw, 0);
     glVertex2f(-80 + btw, 0);
     glEnd();
+    glBegin(GL_QUADS);
+    glColor3f(1.0, 1.0, 0.0);
+    glVertex2f();
+    
 
 }
 
 void kicking_leg(GLfloat x, GLfloat y)
 {
+    glBegin(GL_QUADS);
+    glColor3f(1.0, 1.0, 0.0);
+    glVertex2f();
+    /*
     GLfloat save;
     save = leco[0].x * cos(leg.qut) - leco[0].y * sin(leg.qut);
     leco[0].y = leco[0].x * sin(leg.qut) + leco[0].y * cos(leg.qut);
@@ -329,7 +337,7 @@ void kicking_leg(GLfloat x, GLfloat y)
     glVertex2f(leco[0].x + btw - 50, leco[0].y + 170);
     glVertex2f(leco[3].x + btw - 50, leco[3].y + 170);
     glEnd();
-
+*/
 
 }
 
