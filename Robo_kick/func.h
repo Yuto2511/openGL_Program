@@ -14,10 +14,13 @@
 #define TE 1.0, 1.0, 0.0
 
 //
-#define NUMBER_BALL 1
+#define NUMBER_BALL 2
 
 //
-#define DISP_BALL 1
+#define DISP_BALL 2 
+
+//
+#define RATE 1
 
 //
 #define GRAV -9.8
@@ -40,18 +43,18 @@ typedef struct
     GLfloat x_sp;
     GLfloat y_sp;
     GLfloat xy_sp;
+    GLfloat omega;
     GLfloat size;
     GLfloat rote;
     GLfloat mass;
     GLfloat time;
+    int flag;
 }
 ball_struct;
 
-ball_struct ball[NUMBER_BALL] = {{330, 400, 0, 0, 0, 30, 0, 0, 0}};
-
 void frame();
 void circle(GLfloat x, GLfloat y, GLfloat r, GLfloat offs);
-void rebound_timer();
+void rebound_timer(ball_struct *ptr);
 
 
 #endif

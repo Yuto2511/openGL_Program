@@ -9,14 +9,14 @@ void display();
 void reshape();
 void init();
 
+
+ball_struct ball[NUMBER_BALL] = {{330, 400, 100, 0, 0, 0, 30, 0, 0, 0, 0},
+                                 {100, 200, -150, 60, 0, 0, 20, 0, 0, 0, 0}};
+
 void keyboard(unsigned char key, int x, int y)
 {
     // end with ESC
     if(key == '\x1b') exit(0);
-    if(key == 's')
-    {
-        rebound_timer();
-    }
 }
 
 void mouse(int button, int state, int x, int y)
@@ -43,6 +43,7 @@ void display()
     // write polygon
     frame();
     circle(ball[0].x_cd, ball[0].y_cd, ball[0].size, ball[0].rote + 20.0);
+    circle(ball[1].x_cd, ball[1].y_cd, ball[1].size, ball[1].rote + 20.0);
     glPopMatrix();
     glutSwapBuffers();
 }
@@ -65,6 +66,15 @@ void init()
     glShadeModel(GL_FLAT);
 }
 
+void timer()
+{
+    for(int i = 0; i < DISP_BALL; i++)
+        rebound_timer(&ball[i]);
+    glutPostRedisplay();
+    glutTimerFunc(25, timer, 0);
+}
+
+
 int main(int argc, char *argv[])
 {
     glutInit(&argc, argv);
@@ -79,6 +89,7 @@ int main(int argc, char *argv[])
     glutReshapeFunc(reshape);
     glutKeyboardFunc(keyboard);
     glutMouseFunc(mouse);
+    glutTimerFunc(100, timer, 0);
     glutDisplayFunc(display);
 
     glutMainLoop();

@@ -80,54 +80,72 @@ void circle(GLfloat x, GLfloat y, GLfloat r, GLfloat offs)
     glEnd();
 }
 
-//ボールの速度、壁衝突
-void rebound_timer()
+//ボールの速度、壁衝突、回転
+void rebound_timer(ball_struct *ptr)
 {
     for(int i = 0; i < DISP_BALL; i++)
     {
-        ball[i].time += 0.025 * RATE;
-        ball[i].y_sp += GRAV * ball[i].time;
-        ball[i].x_cd += ball[i].x_sp * ball[i].time;
-        ball[i].y_cd += ball[i].y_sp * ball[i].time;
+        //速度
+        ptr->time = 0.025 * RATE;
+        ptr->y_sp += GRAV * ptr->time;
+        ptr->x_cd += ptr->x_sp * ptr->time;
+        ptr->y_cd += ptr->y_sp * 0.5 * ptr->time;
 
+        //壁衝突
         //床
-        if(ball[i].y_cd <= ball[i].size)
+        if(ptr->y_cd <= ptr->size)
         {
-            ball[i].y_sp *= E;
-            ball[i].x_sp *= U;
-            ball[i].y_cd = ball[i].size;
+            ptr->flag = 1;
+            ptr->y_sp *= E;
+            ptr->x_sp *= U;
+            ptr->y_cd = ptr->size;
+            ptr->omega = ptr->x_sp;
         }
         //右壁
-        if(ball[i].x_cd + ball[i].size >= WIDTH)
+        if(ptr->x_cd + ptr->size >= WIDTH)
         {
-            ball[i].x_sp *= E;
-            ball[i].y_sp *= U;
-            ball[i].x_cd = WIDTH - ball[i].size;
+            ptr->flag = 1;
+            ptr->x_sp *= E;
+            ptr->y_sp *= U;
+            ptr->x_cd = WIDTH - ptr->size;
+            ptr->omega = ptr->y_sp;
         }
         //左壁
-        if(ball[i].x_cd <= ball[i].size)
+        if(ptr->x_cd <= ptr->size)
         {
-            ball[i].x_sp *= E;
-            ball[i].y_sp *= U;
-            ball[i].x_cd = ball[i].size;
+            ptr->flag = 1;
+            ptr->x_sp *= E;
+            ptr->y_sp *= U;
+            ptr->x_cd = ptr->size;
+            ptr->omega = ptr->y_sp;
         }
         //天井
-        if(ball[i].y_cd + ball[i].size >= HIGH)
+        if(ptr->y_cd + ptr->size >= HIGH)
         {
-            ball[i].y_sp *= E;
-            ball[i].x_sp *= U;
-            ball[i].y_cd = HIGH - ball[i].size;
+            ptr->flag = 1;
+            ptr->y_sp *= E;
+            ptr->x_sp *= U;
+            ptr->y_cd = HIGH - ptr->size;
+            ptr->omega = ptr->x_sp;
         }
 
-        if(ball[i].y_cd == ball[i].size)
-            ball[i].xy_sp = ball[i].x_sp;
-        else if(ball[i].x_sp == 0.0)
-            ball[i].xy_sp = 0.0;
-        else if(ball[i].x_sp < 0.00005 && ball[i].y_sp < -3.0)
-            ball[i].xy_sp = 0.0;
-        else ball[i].xy_sp = sqrt(ball[i].x_sp * ball[i].x_sp + ball[i].y_sp * ball[i].y_sp);
+        if(ptr->y_cd == ptr->size)
+            ptr->omega = ptr->x_sp;
+        else if(ptr->x_sp < 0.00005 && ptr->y_sp < 0.00005 && ptr->y_sp > -0.00005)
+            ptr->omega = 0.0;
+        if(ptr->omega < 0.0) ptr->omega *= -1;
+
+        //回転
+        if(ptr->x_sp != 0.0 && ptr->flag == 1)
+        {
+            if(ptr->x_sp > 0.0) ptr->omega *= -1;
+            ptr->rote += (2 * M_PI * ptr->omega) / (25 * ptr->size * RATE);
+            if(ptr->rote >= 360) ptr->rote = 0.0;
+        }
+        //else ptr->rote = 0.0;
 
     }
-    glutPostRedisplay();
-    glutTimerFunc(25, rebound_timer, 0);
 }
+
+//ボール同士の衝突
+//void 
