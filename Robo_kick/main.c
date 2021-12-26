@@ -10,8 +10,15 @@ void reshape();
 void init();
 
 
-ball_struct ball[NUMBER_BALL] = {{330, 400, 100, 0, 0, 0, 30, 0, 0, 0, 0},
-                                 {100, 200, -150, 60, 0, 0, 20, 0, 0, 0, 0}};
+ball_struct ball[NUMBER_BALL] = {{330, 400, 0, 0, 0, 0, 20, 0, 0, 0, 0},
+                                 {220, 15, 0, 0, 0, 0, 30, 0, 0, 0, 0},
+                                 {600, 400, 80, 0, 0, 0, 20, 0, 0, 0, 0},
+                                 {400, 40, 40, 40, 0, 0, 40, 0, 0, 0, 0}};
+
+
+leg_struct leg[2] = {{-30, 30, -30, -150, 30, -150, 30, 30, 0.01 ,0, 0},
+                     {50, -100, 50, -150, 30, -150, 30, -100, 0.01, 0, 0}};
+
 
 void keyboard(unsigned char key, int x, int y)
 {
@@ -42,8 +49,15 @@ void display()
     glPushMatrix();
     // write polygon
     frame();
-    circle(ball[0].x_cd, ball[0].y_cd, ball[0].size, ball[0].rote + 20.0);
-    circle(ball[1].x_cd, ball[1].y_cd, ball[1].size, ball[1].rote + 20.0);
+    for(int i = 0; i < DISP_BALL; i++) circle(ball[i].x_cd, ball[i].y_cd, ball[i].size, ball[i].rote + 20.0);
+    kicking_leg(&leg[0]);
+    kicking_leg(&leg[1]);
+
+    glBegin(GL_POINTS);
+    glColor3f(BK);
+    glVertex2f(DIS_X, DIS_Y);
+    glEnd();
+
     glPopMatrix();
     glutSwapBuffers();
 }
@@ -64,12 +78,26 @@ void init()
 {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glShadeModel(GL_FLAT);
+    for(int i = 0; i < DISP_BALL; i++) ball_init(&ball[i]);
+    for(int i = 0; i < 2; i++) leg_init(&leg[i]);
 }
 
 void timer()
 {
-    for(int i = 0; i < DISP_BALL; i++)
-        rebound_timer(&ball[i]);
+    for(int i = 0; i < DISP_BALL; i++) rebound_timer(&ball[i]);
+    if(DISP_BALL > 1)
+    {
+        for(int i = 0; i < DISP_BALL; i++)
+        {
+            for(int j = i; j < DISP_BALL; j++)
+            {
+                collision_timer(&ball[i], &ball[j]);
+            }
+        }
+    }
+    for(int i = 0; i < DISP_BALL; i++) robokick_timer(&leg[1], &leg[0], &ball[i]);
+    kick_timer(&leg[0]);
+    kick_timer(&leg[1]);
     glutPostRedisplay();
     glutTimerFunc(25, timer, 0);
 }
@@ -96,4 +124,3 @@ int main(int argc, char *argv[])
 
     return 0;
 }
-
